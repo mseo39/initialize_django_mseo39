@@ -14,7 +14,7 @@ from user.jwt_claim_serializer import CustomTokenObtainPairSerializer
 # Create your views here.
 
 @api_view(['POST'])
-def session_signup(request):
+def signup(request):
     if request.method == 'POST':
         serializer = UserSerializers(data=request.data)
         if serializer.is_valid():
