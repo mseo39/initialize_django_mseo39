@@ -33,11 +33,11 @@ def jwt_signin(request):
         user = User.objects.get(username=username)
         # 비밀번호 검증
         if check_password(password, user.password):
-            access = CustomTokenObtainPairSerializer.get_token(user).access_token
-            refresh = RefreshToken.for_user(user)
+            token = CustomTokenObtainPairSerializer.get_token(user)
+            #refresh = RefreshToken.for_user(user)
             return Response({
-                'access_token': str(access),
-                'refresh_token': str(refresh)
+                'access_token': str(token.access_token),
+                'refresh_token': str(token)
             }, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
