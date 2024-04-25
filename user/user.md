@@ -81,6 +81,18 @@ http://127.0.0.1:8000/user/session_signup
     | AUTH_COOKIE_PATH          | 인증 쿠키의 경로                                | str        | '/'      |
     | AUTH_COOKIE_SAMESITE      | 인증 쿠키의 SameSite 속성                       | str        | 'Lax'    |
     | AUTH_COOKIE_SECURE        | 인증 쿠키를 안전하게 전송할지 여부             | boolean    | False    |
+
+#### access token
+1. 생성
+![alt text](./img/생성.png)
+2. 인증
+![alt text](./img/인증.png)
+    * 요청
+      * Authorization: Bearer [JWT 토큰]
+    * @authentication_classes([JWTAuthentication])
+      * JWT(JSON Web Token)를 사용하여 인증
+    * @permission_classes([IsAuthenticated])
+      * 인증된 사용자에게만 접근을 허용
 ---
 
 ### 비밀번호 암호화
