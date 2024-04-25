@@ -19,7 +19,7 @@ http://127.0.0.1:8000/user/session_signup
 
 ### jwt
  * 로그인 API user/jwt_signin
- * 회원가입 API user/jwt_signup
+
 #### 세팅
 * django에서 제공하는 jwt 패키지가 2개 있는데 차이가 궁금했다
     ```
@@ -84,9 +84,13 @@ http://127.0.0.1:8000/user/session_signup
 
 #### access token
 1. 생성
-![alt text](./img/생성.png)
+
+    ![alt text](./img/생성.png)
+
 2. 인증
-![alt text](./img/인증.png)
+
+    ![alt text](./img/인증.png)
+
     * 요청
       * Authorization: Bearer [JWT 토큰]
     * @authentication_classes([JWTAuthentication])
