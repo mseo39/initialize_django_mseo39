@@ -23,6 +23,21 @@ def signup(request):
             serializer.save()
             return Response({'message': 'successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+def session_signin(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+            if check_password(password, user.password):
+                return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def jwt_signin(request):
