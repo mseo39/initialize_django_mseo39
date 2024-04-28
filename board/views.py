@@ -119,3 +119,32 @@ class PostDetailViewSet(APIView):
                 return Response({"message": "You are not allowed"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+class CommentViewSet(APIView):
+    def get_object(self, comment_id):
+        try:
+            return Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return None
+        
+    def post(self, request):
+        request.data['author'] = request.user.id 
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, comment_id):
+        comment = self.get_object(comment_id)
+        if comment:
+            # 토큰에 담긴 사용자 정보와 댓글 작성자 정보를 비교하여 일치하는지 확인
+            if request.user.id == comment.author.id:
+                comment.delete()
+                return Response({"message": "successfully."}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({"message": "You are not allowed"}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({"message": "Comment not found."}, status=status.HTTP_404_NOT_FOUND)
