@@ -60,3 +60,62 @@ class PostViewSet(APIView):
         posts=self.get_object(category_id)
         serializer = PostListSerializer(posts, many=True)
         return Response(serializer.data)
+    
+"""
+@permission_classes : 권한을 누구에게 줄지
+IsAuthenticated - 인증된 사용자에게만 허용
+IsAdminUser - 관리자만 허용
+IsAuthenticatedOrReadOnly 
+- 인증된 사용자는 읽기 쓰기 모두 허용
+- 인증되지 않은 사용자는 읽기만 가능
+"""
+@authentication_classes([JWTAuthentication]) 
+@permission_classes([IsAuthenticatedOrReadOnly])
+class PostDetailViewSet(APIView):
+    
+    def get_object(self, post_id):
+        try:
+            return Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return None
+
+    def get(self, request, post_id):
+        post = self.get_object(post_id)
+        if post:
+            serializer = PostSerializer(post)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request):
+        request.data['author'] = request.user.id 
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, post_id):
+        post = self.get_object(post_id)
+        if post:
+            if request.user.id == post.author.id:
+                serializer = PostSerializer(post, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"message": "You are not allowed"}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    def delete(self, request, post_id):
+        post = self.get_object(post_id)
+        if post:
+            if request.user.id == post.author.id:
+                post.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({"message": "You are not allowed"}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
