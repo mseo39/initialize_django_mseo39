@@ -48,3 +48,15 @@ class CategoryViewSet(APIView):
     
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+class PostViewSet(APIView):
+    def get_object(self,category_id):
+        try:
+            return Post.objects.filter(category_id=category_id)
+        except Post.DoesNotExist:
+            return None
+        
+    def get(self, request, category_id):
+        posts=self.get_object(category_id)
+        serializer = PostListSerializer(posts, many=True)
+        return Response(serializer.data)
