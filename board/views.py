@@ -48,8 +48,17 @@ class CategoryViewSet(APIView):
     
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
+from rest_framework.pagination import PageNumberPagination  
+
+class CustomPagination(PageNumberPagination):
+    page_size = 5 # 한번에 가져올 데이터 수
+    page_query_param = 'page' # url 파라미터로 사용할 값
+    page_size_query_param = 'limit' # 페이지당 가져올 데이터 항목 수
+    
 class PostViewSet(APIView):
+    pagination_class = PageNumberPagination
+    
     def get_object(self,category_id):
         try:
             return Post.objects.filter(category_id=category_id)
@@ -58,9 +67,11 @@ class PostViewSet(APIView):
         
     def get(self, request, category_id):
         posts=self.get_object(category_id)
-        serializer = PostListSerializer(posts, many=True)
-        return Response(serializer.data)
-    
+        paginator = CustomPagination()
+        result_page = paginator.paginate_queryset(posts, request)
+        serializer = PostListSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
 """
 @permission_classes : 권한을 누구에게 줄지
 IsAuthenticated - 인증된 사용자에게만 허용
