@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# 디렉터리가 1 Depth 만큼 더 깊어졌기 때문에 .parent를 한 번 더 사용하여 BASE_DIR을 설정
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,8 +30,30 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+DJANGO_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+]
 
-INSTALLED_APPS = [
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    'rest_framework_simplejwt',
+    'drf_yasg',
+]
+
+LOCAL_APPS = [
+    'user',
+    'board',
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+
+"""INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +65,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'board',
     'drf_yasg',
-]
+]"""
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,9 +95,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'initialize_django.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -85,6 +105,7 @@ DATABASES = {
     }
 }
 
+WSGI_APPLICATION = 'initialize_django.wsgi.application'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -135,32 +156,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 2,
 }
 
-from datetime import timedelta
-AUTH_USER_MODEL = 'user.User'
-
-# 여기서 SIGNING_KEY는 기본으로 settings.SECRET_KEY를 사용한다
-# 지금은 따로 관리 안해줬지만 SECRET_KEY가 털리면 큰일나므로 따로 관리해줘야 한다
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-}
-
-# jwt 토큰을 담기 위함
-SWAGGER_SETTINGS = {
-    'USE_SESSION_AUTH': False,
-    'SECURITY_DEFINITIONS': {
-        'BearerAuth': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': "JWT Token"
-        }
-    },
-    'SECURITY_REQUIREMENTS': [{
-        'BearerAuth': []
-    }]
-}
+from initialize_django.auth import *
+from initialize_django.jwt import *
